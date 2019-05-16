@@ -1,0 +1,140 @@
+Docker Cheatsheet
+*********
+Images
+********
+docker images — list all images
+docker image rm <image_name> — remove an image 
+docker build <path> --tag <image_name> — build image from dockerfile
+
+Remove all untagged images
+docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
+
+# Create image using this directory's Dockerfile. "." is current directory
+docker build -t friendlyhello .  
+
+ # List all running containers
+docker container ls  
+
+
+
+
+**********************
+docker CLI commands
+**********************
+docker ps — list running containers
+docker ps -a — list running and stopped containers
+docker run <image_name> — run container from image
+docker run -p <host_port>:<container_port> — map host port to container 
+docker run -v <host_directory>:<container_directory> — mount host 
+docker run -env <key>=<value> — pass environment variable
+docker inspect <container_id> — give details of a container
+
+# List all containers, even those not running
+docker container ls -a 
+
+# List all containers in quiet mode
+docker container ls -aq
+
+# Gracefully stop the specified containe
+docker container stop <hash>
+
+# Same thing, but in detached mode
+docker run -d -p 4000:80 friendlyhello
+
+# Force shutdown of the specified container
+docker container kill <hash> 
+
+ # Remove specified container from this machine
+docker container rm <hash>
+
+Stop all containers
+docker rm $(docker ps -a -q)
+
+# Remove all containers
+docker container rm $(docker container ls -a -q)
+
+# kill all running containers 
+docker kill $(docker ps -q)
+
+# delete all stopped containers 
+docker container rm $(docker ps -a -q)
+
+# delete all images 
+docker rmi $(docker images -q)
+
+## Display Docker version and info
+docker --version
+docker version
+docker info
+
+
+*****************************
+Docker-compose commands
+******************************
+docker-compose build — builds images 
+docker-compose up — starts containers 
+docker-compose up -d - start container(s) in the background
+docker-compose up -d --build - start container(s) in the background with a fresh build
+docker-compose stop — stops running containers
+docker-compose rm — removes stopped containers
+
+********************************
+Docker-compose.yml keywords
+*******************************
+version: which version of docker-compose to use 
+services: names of containers we want to run
+build: steps describing the build process
+context: the relative path where the Dockerfile is located at to build the image
+ports: map ports from the host machine to the container
+volumes: map the host machine or a docker volume to the container
+environment : pass environment variables to the container 
+depends_on : start the listed services before starting the current service
+
+***********************
+Dockerfile keywords
+***********************
+FROM image_name — starts build by layering onto an existing image
+COPY host_path container_path — copies file or directory from host to the image
+RUN shell_command — runs a shell command in the image
+WORKDIR path — sets the current path in the image 
+ENV variable value — sets the env variable equal to the value
+EXPOSE port — exposes a container port
+ENTRYPOINT ['shell', 'command'] — prefixes to CMD 
+CMD ['shell', 'command'] —executes shell command at runtime
+
+*******************
+$ curl cheat.sh/
+********************
+docker
+# Start docker daemon
+docker -d
+
+# start a container with an interactive shell
+docker run -ti <image_name> /bin/bash
+
+# "shell" into a running container (docker-1.3+)
+docker exec -ti <container_name> bash
+
+# inspect a running container
+docker inspect <container_name> (or <container_id>)
+
+# Get the process ID for a container
+# Source: https://github.com/jpetazzo/nsenter
+docker inspect --format {{.State.Pid}} <container_name_or_ID>
+
+# List the current mounted volumes for a container (and pretty print)
+# Source:
+# http://nathanleclaire.com/blog/2014/07/12/10-docker-tips-and-tricks-that-will-make-you-sing-a-whale-song-of-joy/
+docker inspect --format='{{json .Volumes}}' <container_id> | python -mjson.tool
+
+# Copy files/folders between a container and your host
+docker cp foo.txt mycontainer:/foo.txt
+
+# list currently running containers
+docker ps
+
+# list all containers
+docker ps -a
+
+# list all images
+docker images
